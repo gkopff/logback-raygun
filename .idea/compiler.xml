@@ -25,6 +25,9 @@
         <module name="logback-raygun" />
       </profile>
     </annotationProcessing>
+    <bytecodeTargetLevel>
+      <module name="logback-raygun" target="1.7" />
+    </bytecodeTargetLevel>
   </component>
 </project>
 

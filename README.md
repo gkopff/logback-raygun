@@ -38,11 +38,11 @@ LOG.warn("oh no, not again",
 
 ... produces:
 
-** Message ** oh no, not again; java.lang.RuntimeException: java.lang.UnsupportedOperationException: petunias can't fly; caused by: java.lang.UnsupportedOperationException: petunias can't fly; caused by: java.util.InputMismatchException
+**Message** oh no, not again; java.lang.RuntimeException: java.lang.UnsupportedOperationException: petunias can't fly; caused by: java.lang.UnsupportedOperationException: petunias can't fly; caused by: java.util.InputMismatchException
 
-** Class Name ** java.lang.RuntimeException
+**Class Name** java.lang.RuntimeException
 
-** Stack Trace **
+**Stack Trace**
 
 ````
 oh no, not again; java.lang.RuntimeException: java.lang.UnsupportedOperationException: petunias can't fly; caused by: java.lang.UnsupportedOperationException: petunias can't fly; caused by: java.util.InputMismatchException
@@ -90,11 +90,11 @@ LOG.warn("I hope it will be friends with me.");
 
 ... produces:
 
-** Message ** I hope it will be friends with me.
+**Message** I hope it will be friends with me.
 
-** Class Name ** com.fatboyindustrial.raygun.OtherClass
+**Class Name** com.fatboyindustrial.raygun.OtherClass
 
-** Stack Trace **
+**Stack Trace**
 
 ````
 I hope it will be friends with me.

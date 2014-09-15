@@ -130,7 +130,7 @@ public class RaygunAppender extends AppenderBase<ILoggingEvent>
    * @param loggingEvent The logging event.
    * @return The raygun message.
    */
-  private RaygunErrorMessage buildRaygunMessage(ILoggingEvent loggingEvent)
+  private static RaygunErrorMessage buildRaygunMessage(ILoggingEvent loggingEvent)
   {
     final Optional<IThrowableProxy> exception = Optional.fromNullable(loggingEvent.getThrowableProxy());
     return buildRaygunMessage(loggingEvent.getFormattedMessage(), exception);
@@ -142,7 +142,7 @@ public class RaygunAppender extends AppenderBase<ILoggingEvent>
    * @param exception The optional exception details.
    * @return The raygun message.
    */
-  private RaygunErrorMessage buildRaygunMessage(String message, Optional<IThrowableProxy> exception)
+  private static RaygunErrorMessage buildRaygunMessage(String message, Optional<IThrowableProxy> exception)
   {
     // The Raygun error message constructor wants a real exception, which we don't have - we only have
     // a logback throwable proxy.  Therefore, we construct the error message with any old exception,
@@ -197,7 +197,7 @@ public class RaygunAppender extends AppenderBase<ILoggingEvent>
    * @param exception The exception to process.
    * @return A string describing all exceptions in the chain.
    */
-  private String buildCausalString(IThrowableProxy exception)
+  private static String buildCausalString(IThrowableProxy exception)
   {
     final StringBuilder buff = new StringBuilder();
 
@@ -220,7 +220,7 @@ public class RaygunAppender extends AppenderBase<ILoggingEvent>
    * @param throwableProxy The logback throwable proxy.
    * @return The raygun stack trace information.
    */
-  private RaygunErrorStackTraceLineMessage[] buildRaygunStack(IThrowableProxy throwableProxy)
+  private static RaygunErrorStackTraceLineMessage[] buildRaygunStack(IThrowableProxy throwableProxy)
   {
     final StackTraceElementProxy[] proxies = throwableProxy.getStackTraceElementProxyArray();
     final RaygunErrorStackTraceLineMessage[] lines = new RaygunErrorStackTraceLineMessage[proxies.length];
@@ -254,7 +254,7 @@ public class RaygunAppender extends AppenderBase<ILoggingEvent>
    * Finds the stack trace elements that corresponds to the actual log call-site.
    * @return The applicable stack trace element.
    */
-  private StackTraceElement locateCallSite()
+  private static StackTraceElement locateCallSite()
   {
     // The stack will contain Fat Boy Industrial entries, followed by logback entries,
     // and then the actual call-site ...

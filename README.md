@@ -3,6 +3,16 @@
 
 A logback appender that emits details to [raygun.io](http://raygun.io/).  It requires Java 8.
 
+## Getting it
+
+````
+<dependency>
+  <groupId>com.fatboyindustrial.logback-raygun</groupId>
+  <artifactId>logback-raygun</artifactId>
+  <version>1.0.0</version>
+</dependency>
+````
+
 ## Configuration
 
 ````

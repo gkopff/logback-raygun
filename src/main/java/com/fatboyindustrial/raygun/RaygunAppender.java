@@ -51,7 +51,7 @@ public class RaygunAppender extends AppenderBase<ILoggingEvent>
   private static final String NAME = "logback-raygun";
 
   /** The version of our Raygun submission software. */
-  private static final String VERSION = "1.0.0-SNAPSHOT";
+  private static final String VERSION = "1.0.0";
 
   /** The URL of our Raygun submission software. */
   private static final String URL = "https://github.com/gkopff/logback-raygun";

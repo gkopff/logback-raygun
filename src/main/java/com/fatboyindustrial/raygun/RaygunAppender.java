@@ -35,10 +35,12 @@ import com.mindscapehq.raygun4java.core.RaygunMessageBuilder;
 import com.mindscapehq.raygun4java.core.messages.RaygunErrorMessage;
 import com.mindscapehq.raygun4java.core.messages.RaygunErrorStackTraceLineMessage;
 import com.mindscapehq.raygun4java.core.messages.RaygunMessage;
-import org.joda.time.DateTime;
 
 import java.net.InetAddress;
 import java.net.UnknownHostException;
+import java.time.Instant;
+import java.time.OffsetDateTime;
+import java.time.ZoneId;
 
 /**
  * A logback appender that emits details to {@code raygun.io}.
@@ -93,7 +95,7 @@ public class RaygunAppender extends AppenderBase<ILoggingEvent>
     msg.getDetails().setUserCustomData(ImmutableMap.of(
         "thread", logEvent.getThreadName(),
         "logger", logEvent.getLoggerName(),
-        "datetime", new DateTime(logEvent.getTimeStamp()).toString()));
+        "datetime", OffsetDateTime.ofInstant(Instant.ofEpochMilli(logEvent.getTimeStamp()), ZoneId.systemDefault())));
 
     ray.Post(msg);
   }

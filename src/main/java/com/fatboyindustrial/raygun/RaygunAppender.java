@@ -118,6 +118,7 @@ public class RaygunAppender extends AppenderBase<ILoggingEvent>
    * Sets the API key.
    * @param apiKey The API key.
    */
+  @SuppressWarnings("UnusedDeclaration")         // called by slf4j
   public void setApiKey(String apiKey)
   {
     Preconditions.checkNotNull(apiKey, "apiKey cannot be null");

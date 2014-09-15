@@ -1,7 +1,7 @@
 # logback-raygun
 
 
-A logback appender that emits details to [raygun.io](http://raygun.io/).
+A logback appender that emits details to [raygun.io](http://raygun.io/).  It requires Java 8.
 
 ## Configuration
 

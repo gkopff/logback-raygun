@@ -27,7 +27,6 @@ import ch.qos.logback.classic.spi.ILoggingEvent;
 import ch.qos.logback.classic.spi.IThrowableProxy;
 import ch.qos.logback.classic.spi.StackTraceElementProxy;
 import ch.qos.logback.core.AppenderBase;
-import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableMap;
 import com.mindscapehq.raygun4java.core.RaygunClient;
@@ -41,6 +40,7 @@ import java.net.UnknownHostException;
 import java.time.Instant;
 import java.time.OffsetDateTime;
 import java.time.ZoneId;
+import java.util.Optional;
 
 /**
  * A logback appender that emits details to {@code raygun.io}.
@@ -56,12 +56,8 @@ public class RaygunAppender extends AppenderBase<ILoggingEvent>
   /** The URL of our Raygun submission software. */
   private static final String URL = "https://github.com/gkopff/logback-raygun";
 
-  /**
-   * The RayGun API key.
-   * The optional value is used to detect missing items in the configuration file - an absent value will
-   * result in an error when the appender is started.
-   */
-  private Optional<String> apiKey = Optional.absent();
+  /** The RayGun API key master. */
+  private KeyMaster keyMaster;
 
   /**
    * No-arg constructor required by Logback.
@@ -78,40 +74,31 @@ public class RaygunAppender extends AppenderBase<ILoggingEvent>
   @Override
   protected void append(ILoggingEvent logEvent)
   {
-    final RaygunClient ray = new RaygunClient(this.apiKey.get());    // we check its present when the appender starts
+    final String host = getMachineName();
+    final Optional<String> apiKey = this.keyMaster.getApiKey(host);
 
-    // We use the Raygun supplied classes a bit ... but we customise.
+    apiKey.ifPresent(key -> {
+      final RaygunClient ray = new RaygunClient(key);
 
-    final RaygunMessage msg = RaygunMessageBuilder.New()
-        .SetEnvironmentDetails()
-        .SetMachineName(getMachineName())
-        .SetClientDetails()
-        .Build();
-    msg.getDetails().getClient().setName(NAME);
-    msg.getDetails().getClient().setVersion(VERSION);
-    msg.getDetails().getClient().setClientUrlString(URL);
-    msg.getDetails().setError(buildRaygunMessage(logEvent));
+      // We use the Raygun supplied classes a bit ... but we customise.
 
-    msg.getDetails().setUserCustomData(ImmutableMap.of(
-        "thread", logEvent.getThreadName(),
-        "logger", logEvent.getLoggerName(),
-        "datetime", OffsetDateTime.ofInstant(Instant.ofEpochMilli(logEvent.getTimeStamp()), ZoneId.systemDefault())));
+      final RaygunMessage msg = RaygunMessageBuilder.New()
+          .SetEnvironmentDetails()
+          .SetMachineName(host)
+          .SetClientDetails()
+          .Build();
+      msg.getDetails().getClient().setName(NAME);
+      msg.getDetails().getClient().setVersion(VERSION);
+      msg.getDetails().getClient().setClientUrlString(URL);
+      msg.getDetails().setError(buildRaygunMessage(logEvent));
 
-    ray.Post(msg);
-  }
+      msg.getDetails().setUserCustomData(ImmutableMap.of(
+          "thread", logEvent.getThreadName(),
+          "logger", logEvent.getLoggerName(),
+          "datetime", OffsetDateTime.ofInstant(Instant.ofEpochMilli(logEvent.getTimeStamp()), ZoneId.systemDefault())));
 
-  /**
-   * Starts the appender.
-   */
-  @Override
-  public void start()
-  {
-    if (! this.apiKey.isPresent())
-    {
-      addError("API key missing for appender [" + this.name + "].");
-    }
-
-    super.start();
+      ray.Post(msg);
+    });
   }
 
   /**
@@ -123,7 +110,7 @@ public class RaygunAppender extends AppenderBase<ILoggingEvent>
   {
     Preconditions.checkNotNull(apiKey, "apiKey cannot be null");
 
-    this.apiKey = Optional.of(apiKey);
+    this.keyMaster = KeyMaster.fromConfigString(apiKey);
   }
 
   /**
@@ -133,7 +120,7 @@ public class RaygunAppender extends AppenderBase<ILoggingEvent>
    */
   private static RaygunErrorMessage buildRaygunMessage(ILoggingEvent loggingEvent)
   {
-    final Optional<IThrowableProxy> exception = Optional.fromNullable(loggingEvent.getThrowableProxy());
+    final Optional<IThrowableProxy> exception = Optional.ofNullable(loggingEvent.getThrowableProxy());
     return buildRaygunMessage(loggingEvent.getFormattedMessage(), exception);
   }
 
@@ -171,24 +158,21 @@ public class RaygunAppender extends AppenderBase<ILoggingEvent>
       }
       else
       {
-        inner = Optional.absent();
+        inner = Optional.empty();
       }
     }
     else
     {
       trace = new RaygunErrorStackTraceLineMessage[] { new RaygunErrorStackTraceLineMessage(locateCallSite()) };
       className = trace[0].getClassName();
-      inner = Optional.absent();
+      inner = Optional.empty();
     }
 
     error.setMessage(buff.toString());
     error.setClassName(className);
     error.setStackTrace(trace);
 
-    if (inner.isPresent())
-    {
-      error.setInnerError(inner.get());
-    }
+    inner.ifPresent(error::setInnerError);
 
     return error;
   }

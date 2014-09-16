@@ -27,7 +27,6 @@ import ch.qos.logback.classic.spi.ILoggingEvent;
 import ch.qos.logback.classic.spi.IThrowableProxy;
 import ch.qos.logback.classic.spi.StackTraceElementProxy;
 import ch.qos.logback.core.AppenderBase;
-import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableMap;
 import com.mindscapehq.raygun4java.core.RaygunClient;
@@ -41,6 +40,7 @@ import java.net.UnknownHostException;
 import java.time.Instant;
 import java.time.OffsetDateTime;
 import java.time.ZoneId;
+import java.util.Optional;
 
 /**
  * A logback appender that emits details to {@code raygun.io}.
@@ -121,7 +121,7 @@ public class RaygunAppender extends AppenderBase<ILoggingEvent>
    */
   private static RaygunErrorMessage buildRaygunMessage(ILoggingEvent loggingEvent)
   {
-    final Optional<IThrowableProxy> exception = Optional.fromNullable(loggingEvent.getThrowableProxy());
+    final Optional<IThrowableProxy> exception = Optional.ofNullable(loggingEvent.getThrowableProxy());
     return buildRaygunMessage(loggingEvent.getFormattedMessage(), exception);
   }
 
@@ -159,14 +159,14 @@ public class RaygunAppender extends AppenderBase<ILoggingEvent>
       }
       else
       {
-        inner = Optional.absent();
+        inner = Optional.empty();
       }
     }
     else
     {
       trace = new RaygunErrorStackTraceLineMessage[] { new RaygunErrorStackTraceLineMessage(locateCallSite()) };
       className = trace[0].getClassName();
-      inner = Optional.absent();
+      inner = Optional.empty();
     }
 
     error.setMessage(buff.toString());

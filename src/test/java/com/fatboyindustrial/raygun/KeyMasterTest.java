@@ -23,9 +23,10 @@
 
 package com.fatboyindustrial.raygun;
 
-import com.google.common.base.Optional;
 import com.google.common.collect.ImmutableMap;
 import org.junit.Test;
+
+import java.util.Optional;
 
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
@@ -71,7 +72,7 @@ public class KeyMasterTest
     final String input = "vogon.local:OpjzfzXvHooFqjyhT5311g== desiato:DYkfAazxL/HxiwnhtRkAvA==";
     final KeyMaster keyMaster = KeyMaster.fromConfigString(input);
 
-    assertThat(keyMaster.getApiKey("anything"), is(Optional.absent()));
+    assertThat(keyMaster.getApiKey("anything"), is(Optional.empty()));
     assertThat(keyMaster.getApiKey("vogon.local"), is(Optional.of("OpjzfzXvHooFqjyhT5311g==")));
     assertThat(keyMaster.getApiKey("desiato"), is(Optional.of("DYkfAazxL/HxiwnhtRkAvA==")));
   }

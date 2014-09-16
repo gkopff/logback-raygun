@@ -56,12 +56,8 @@ public class RaygunAppender extends AppenderBase<ILoggingEvent>
   /** The URL of our Raygun submission software. */
   private static final String URL = "https://github.com/gkopff/logback-raygun";
 
-  /**
-   * The RayGun API key.
-   * The optional value is used to detect missing items in the configuration file - an absent value will
-   * result in an error when the appender is started.
-   */
-  private Optional<String> apiKey = Optional.absent();
+  /** The RayGun API key master. */
+  private KeyMaster keyMaster;
 
   /**
    * No-arg constructor required by Logback.
@@ -78,40 +74,32 @@ public class RaygunAppender extends AppenderBase<ILoggingEvent>
   @Override
   protected void append(ILoggingEvent logEvent)
   {
-    final RaygunClient ray = new RaygunClient(this.apiKey.get());    // we check its present when the appender starts
+    final String host = getMachineName();
+    final Optional<String> apiKey = this.keyMaster.getApiKey(host);
 
-    // We use the Raygun supplied classes a bit ... but we customise.
-
-    final RaygunMessage msg = RaygunMessageBuilder.New()
-        .SetEnvironmentDetails()
-        .SetMachineName(getMachineName())
-        .SetClientDetails()
-        .Build();
-    msg.getDetails().getClient().setName(NAME);
-    msg.getDetails().getClient().setVersion(VERSION);
-    msg.getDetails().getClient().setClientUrlString(URL);
-    msg.getDetails().setError(buildRaygunMessage(logEvent));
-
-    msg.getDetails().setUserCustomData(ImmutableMap.of(
-        "thread", logEvent.getThreadName(),
-        "logger", logEvent.getLoggerName(),
-        "datetime", OffsetDateTime.ofInstant(Instant.ofEpochMilli(logEvent.getTimeStamp()), ZoneId.systemDefault())));
-
-    ray.Post(msg);
-  }
-
-  /**
-   * Starts the appender.
-   */
-  @Override
-  public void start()
-  {
-    if (! this.apiKey.isPresent())
+    if (apiKey.isPresent())
     {
-      addError("API key missing for appender [" + this.name + "].");
-    }
+      final RaygunClient ray = new RaygunClient(apiKey.get());
 
-    super.start();
+      // We use the Raygun supplied classes a bit ... but we customise.
+
+      final RaygunMessage msg = RaygunMessageBuilder.New()
+          .SetEnvironmentDetails()
+          .SetMachineName(host)
+          .SetClientDetails()
+          .Build();
+      msg.getDetails().getClient().setName(NAME);
+      msg.getDetails().getClient().setVersion(VERSION);
+      msg.getDetails().getClient().setClientUrlString(URL);
+      msg.getDetails().setError(buildRaygunMessage(logEvent));
+
+      msg.getDetails().setUserCustomData(ImmutableMap.of(
+          "thread", logEvent.getThreadName(),
+          "logger", logEvent.getLoggerName(),
+          "datetime", OffsetDateTime.ofInstant(Instant.ofEpochMilli(logEvent.getTimeStamp()), ZoneId.systemDefault())));
+
+      ray.Post(msg);
+    }
   }
 
   /**
@@ -123,7 +111,7 @@ public class RaygunAppender extends AppenderBase<ILoggingEvent>
   {
     Preconditions.checkNotNull(apiKey, "apiKey cannot be null");
 
-    this.apiKey = Optional.of(apiKey);
+    this.keyMaster = KeyMaster.fromConfigString(apiKey);
   }
 
   /**

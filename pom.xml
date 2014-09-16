@@ -45,6 +45,7 @@
   <scm>
     <url>https://github.com/gkopff/logback-raygun</url>
     <connection>scm:git:https://github.com/gkopff/logback-raygun.git</connection>
+    <developerConnection>scm:git:git@github.com:gkopff/logback-raygun.git</developerConnection>
   </scm>
 
   <developers>

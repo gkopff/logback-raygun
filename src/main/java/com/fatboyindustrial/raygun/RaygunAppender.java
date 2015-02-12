@@ -1,5 +1,5 @@
 /*
- * Copyright 2014 Greg Kopff
+ *  Copyright 2014-2015 Greg Kopff
  *  All rights reserved.
  *
  *  Permission is hereby granted, free of charge, to any person obtaining a copy

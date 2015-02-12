@@ -47,6 +47,10 @@ import java.util.Optional;
  */
 public class RaygunAppender extends AppenderBase<ILoggingEvent>
 {
+  /** System property name for the application ID. */
+  public static final String PROPERTY_APPLICATION_ID =
+      "com.fatboyindustrial.raygun.UserCustomData.applicationId";
+
   /** The name of our Raygun submission software. */
   private static final String NAME = "logback-raygun";
 
@@ -96,6 +100,7 @@ public class RaygunAppender extends AppenderBase<ILoggingEvent>
       msg.getDetails().setUserCustomData(ImmutableMap.of(
           "thread", e.getThreadName(),
           "logger", e.getLoggerName(),
+          "applicationId", System.getProperty(PROPERTY_APPLICATION_ID, "unnamed"),
           "datetime", OffsetDateTime.ofInstant(Instant.ofEpochMilli(e.getTimeStamp()), ZoneId.systemDefault())));
 
       ray.Post(msg);

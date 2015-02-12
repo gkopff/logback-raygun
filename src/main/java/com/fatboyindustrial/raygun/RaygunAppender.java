@@ -77,8 +77,9 @@ public class RaygunAppender extends AppenderBase<ILoggingEvent>
     final String host = getMachineName();
     final Optional<String> apiKey = this.keyMaster.getApiKey(host);
 
-    apiKey.ifPresent(key -> {
-      final RaygunClient ray = new RaygunClient(key);
+    if (apiKey.isPresent())
+    {
+      final RaygunClient ray = new RaygunClient(apiKey.get());
 
       // We use the Raygun supplied classes a bit ... but we customise.
 
@@ -98,7 +99,7 @@ public class RaygunAppender extends AppenderBase<ILoggingEvent>
           "datetime", OffsetDateTime.ofInstant(Instant.ofEpochMilli(logEvent.getTimeStamp()), ZoneId.systemDefault())));
 
       ray.Post(msg);
-    });
+    }
   }
 
   /**

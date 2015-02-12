@@ -1,5 +1,5 @@
 /*
- * Copyright 2014 Greg Kopff
+ *  Copyright 2014-2015 Greg Kopff
  *  All rights reserved.
  *
  *  Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -69,16 +69,17 @@ public class RaygunAppender extends AppenderBase<ILoggingEvent>
 
   /**
    * Appends the logging event.
-   * @param logEvent The logging event.
+   * @param e The logging event.
    */
   @Override
-  protected void append(ILoggingEvent logEvent)
+  protected void append(ILoggingEvent e)
   {
     final String host = getMachineName();
     final Optional<String> apiKey = this.keyMaster.getApiKey(host);
 
-    apiKey.ifPresent(key -> {
-      final RaygunClient ray = new RaygunClient(key);
+    if (apiKey.isPresent())
+    {
+      final RaygunClient ray = new RaygunClient(apiKey.get());
 
       // We use the Raygun supplied classes a bit ... but we customise.
 
@@ -90,15 +91,15 @@ public class RaygunAppender extends AppenderBase<ILoggingEvent>
       msg.getDetails().getClient().setName(NAME);
       msg.getDetails().getClient().setVersion(VERSION);
       msg.getDetails().getClient().setClientUrlString(URL);
-      msg.getDetails().setError(buildRaygunMessage(logEvent));
+      msg.getDetails().setError(buildRaygunMessage(e));
 
       msg.getDetails().setUserCustomData(ImmutableMap.of(
-          "thread", logEvent.getThreadName(),
-          "logger", logEvent.getLoggerName(),
-          "datetime", OffsetDateTime.ofInstant(Instant.ofEpochMilli(logEvent.getTimeStamp()), ZoneId.systemDefault())));
+          "thread", e.getThreadName(),
+          "logger", e.getLoggerName(),
+          "datetime", OffsetDateTime.ofInstant(Instant.ofEpochMilli(e.getTimeStamp()), ZoneId.systemDefault())));
 
       ray.Post(msg);
-    });
+    }
   }
 
   /**

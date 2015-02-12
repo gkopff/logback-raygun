@@ -146,8 +146,10 @@ public class RaygunAppender extends AppenderBase<ILoggingEvent>
     final String className;
     final RaygunErrorStackTraceLineMessage[] trace;
     final Optional<RaygunErrorMessage> inner;
+    final Optional<String> appId = Optional.ofNullable(System.getProperty(PROPERTY_APPLICATION_ID));
     final StringBuilder buff = new StringBuilder();
 
+    appId.ifPresent(id -> buff.append(id).append(": "));
     buff.append(message);
 
     if (exception.isPresent())

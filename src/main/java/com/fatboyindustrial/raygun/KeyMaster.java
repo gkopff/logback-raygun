@@ -24,10 +24,9 @@
 package com.fatboyindustrial.raygun;
 
 import com.google.common.annotations.VisibleForTesting;
+import com.google.common.base.Optional;
 import com.google.common.base.Splitter;
 import com.google.common.collect.ImmutableMap;
-
-import java.util.Optional;
 
 /**
  * Supplies API keys back to the appender. <p>
@@ -88,7 +87,7 @@ public class KeyMaster
     }
     else
     {
-      return Optional.ofNullable(this.keys.get(host));
+      return Optional.fromNullable(this.keys.get(host));
     }
   }
 

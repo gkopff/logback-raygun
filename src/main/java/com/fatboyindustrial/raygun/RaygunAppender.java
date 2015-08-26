@@ -29,6 +29,7 @@ import ch.qos.logback.classic.spi.StackTraceElementProxy;
 import ch.qos.logback.core.AppenderBase;
 import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.mindscapehq.raygun4java.core.RaygunClient;
 import com.mindscapehq.raygun4java.core.RaygunMessageBuilder;
@@ -39,6 +40,7 @@ import com.mindscapehq.raygun4java.core.messages.RaygunMessage;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.util.Date;
+import java.util.List;
 
 /**
  * A logback appender that emits details to {@code raygun.io}.
@@ -60,6 +62,9 @@ public class RaygunAppender extends AppenderBase<ILoggingEvent>
 
   /** The RayGun API key master. */
   private KeyMaster keyMaster;
+
+  /** Tags to send to Raygun. */
+  private List<String> tags = ImmutableList.of();
 
   /**
    * No-arg constructor required by Logback.
@@ -94,6 +99,7 @@ public class RaygunAppender extends AppenderBase<ILoggingEvent>
       msg.getDetails().getClient().setVersion(VERSION);
       msg.getDetails().getClient().setClientUrlString(URL);
       msg.getDetails().setError(buildRaygunMessage(e));
+      msg.getDetails().setTags(tags);
 
       msg.getDetails().setUserCustomData(ImmutableMap.of(
           "thread", e.getThreadName(),
@@ -115,6 +121,18 @@ public class RaygunAppender extends AppenderBase<ILoggingEvent>
     Preconditions.checkNotNull(apiKey, "apiKey cannot be null");
 
     this.keyMaster = KeyMaster.fromConfigString(apiKey);
+  }
+
+  /**
+   * Sets the tags.
+   * @param tags The tags.
+   */
+  @SuppressWarnings("UnusedDeclaration") // called by slf4j
+  public void setTags(String tags)
+  {
+    Preconditions.checkNotNull(tags, "tags cannot be null");
+
+    this.tags = ImmutableList.copyOf(tags.split(","));
   }
 
   /**

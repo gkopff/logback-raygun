@@ -1,7 +1,7 @@
 # logback-raygun
 
 
-A logback appender that emits details to [raygun.io](http://raygun.io/).  It requires Java 8.
+A logback appender that emits details to [raygun.io](http://raygun.io/).  It requires Java 7.
 
 ## Getting it
 
@@ -19,6 +19,9 @@ A logback appender that emits details to [raygun.io](http://raygun.io/).  It req
 <configuration>
   <appender name="RAYGUN" class="com.fatboyindustrial.raygun.RaygunAppender">
     <apiKey><!-- insert key here --></apiKey>
+
+    <!-- Optional: comma delimited tags to send with errors -->
+    <tags>production,variant-a</tags>
 
     <!-- Deny all events with a level below WARN, that is: TRACE, DEBUG, INFO. -->
     <filter class="ch.qos.logback.classic.filter.ThresholdFilter">
@@ -54,7 +57,7 @@ The line:
 ````
 LOG.warn("oh no, not again",
     new RuntimeException(
-        new UnsupportedOperationException("petunias can't fly", 
+        new UnsupportedOperationException("petunias can't fly",
             new InputMismatchException())));
 ````
 

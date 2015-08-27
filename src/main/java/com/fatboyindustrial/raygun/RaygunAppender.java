@@ -27,6 +27,7 @@ import ch.qos.logback.classic.spi.ILoggingEvent;
 import ch.qos.logback.classic.spi.IThrowableProxy;
 import ch.qos.logback.classic.spi.StackTraceElementProxy;
 import ch.qos.logback.core.AppenderBase;
+import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableMap;
 import com.mindscapehq.raygun4java.core.RaygunClient;
@@ -37,10 +38,7 @@ import com.mindscapehq.raygun4java.core.messages.RaygunMessage;
 
 import java.net.InetAddress;
 import java.net.UnknownHostException;
-import java.time.Instant;
-import java.time.OffsetDateTime;
-import java.time.ZoneId;
-import java.util.Optional;
+import java.util.Date;
 
 /**
  * A logback appender that emits details to {@code raygun.io}.
@@ -101,7 +99,7 @@ public class RaygunAppender extends AppenderBase<ILoggingEvent>
           "thread", e.getThreadName(),
           "logger", e.getLoggerName(),
           "applicationId", System.getProperty(PROPERTY_APPLICATION_ID, "unnamed"),
-          "datetime", OffsetDateTime.ofInstant(Instant.ofEpochMilli(e.getTimeStamp()), ZoneId.systemDefault())));
+          "datetime", new Date(e.getTimeStamp())));
 
       ray.Post(msg);
     }
@@ -126,7 +124,7 @@ public class RaygunAppender extends AppenderBase<ILoggingEvent>
    */
   private static RaygunErrorMessage buildRaygunMessage(ILoggingEvent loggingEvent)
   {
-    final Optional<IThrowableProxy> exception = Optional.ofNullable(loggingEvent.getThrowableProxy());
+    final Optional<IThrowableProxy> exception = Optional.fromNullable(loggingEvent.getThrowableProxy());
     return buildRaygunMessage(loggingEvent.getFormattedMessage(), exception);
   }
 
@@ -146,10 +144,13 @@ public class RaygunAppender extends AppenderBase<ILoggingEvent>
     final String className;
     final RaygunErrorStackTraceLineMessage[] trace;
     final Optional<RaygunErrorMessage> inner;
-    final Optional<String> appId = Optional.ofNullable(System.getProperty(PROPERTY_APPLICATION_ID));
+    final Optional<String> appId = Optional.fromNullable(System.getProperty(PROPERTY_APPLICATION_ID));
     final StringBuilder buff = new StringBuilder();
 
-    appId.ifPresent(id -> buff.append(id).append(": "));
+    if (appId.isPresent())
+    {
+      buff.append(appId.get()).append(": ");
+    }
     buff.append(message);
 
     if (exception.isPresent())
@@ -166,21 +167,24 @@ public class RaygunAppender extends AppenderBase<ILoggingEvent>
       }
       else
       {
-        inner = Optional.empty();
+        inner = Optional.absent();
       }
     }
     else
     {
       trace = new RaygunErrorStackTraceLineMessage[] { new RaygunErrorStackTraceLineMessage(locateCallSite()) };
       className = trace[0].getClassName();
-      inner = Optional.empty();
+      inner = Optional.absent();
     }
 
     error.setMessage(buff.toString());
     error.setClassName(className);
     error.setStackTrace(trace);
 
-    inner.ifPresent(error::setInnerError);
+    if (inner.isPresent())
+    {
+      error.setInnerError(inner.get());
+    }
 
     return error;
   }

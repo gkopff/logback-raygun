@@ -9,7 +9,7 @@ A logback appender that emits details to [raygun.io](http://raygun.io/).  It req
 <dependency>
   <groupId>com.fatboyindustrial.logback-raygun</groupId>
   <artifactId>logback-raygun</artifactId>
-  <version>1.2.0</version>
+  <version>1.3.0</version>
 </dependency>
 ````
 

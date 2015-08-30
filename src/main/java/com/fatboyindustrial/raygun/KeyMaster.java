@@ -34,7 +34,7 @@ import com.google.common.collect.ImmutableMap;
  * Two modes of operation are supported: <ul>
  *   <li> the same single API key is always used, and
  *   <li> an API is conditionally supplied based on the hostname.
- * </ul> <p>
+ * </ul>
  */
 public class KeyMaster
 {

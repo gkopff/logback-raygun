@@ -23,24 +23,27 @@
 
 package com.fatboyindustrial.raygun;
 
-import ch.qos.logback.classic.spi.ILoggingEvent;
-import ch.qos.logback.classic.spi.IThrowableProxy;
-import ch.qos.logback.classic.spi.StackTraceElementProxy;
-import ch.qos.logback.core.AppenderBase;
+import java.net.InetAddress;
+import java.net.UnknownHostException;
+import java.util.Date;
+import java.util.List;
+import java.util.Map;
+
 import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.Maps;
 import com.mindscapehq.raygun4java.core.RaygunClient;
 import com.mindscapehq.raygun4java.core.RaygunMessageBuilder;
 import com.mindscapehq.raygun4java.core.messages.RaygunErrorMessage;
 import com.mindscapehq.raygun4java.core.messages.RaygunErrorStackTraceLineMessage;
 import com.mindscapehq.raygun4java.core.messages.RaygunMessage;
 
-import java.net.InetAddress;
-import java.net.UnknownHostException;
-import java.util.Date;
-import java.util.List;
+import ch.qos.logback.classic.spi.ILoggingEvent;
+import ch.qos.logback.classic.spi.IThrowableProxy;
+import ch.qos.logback.classic.spi.StackTraceElementProxy;
+import ch.qos.logback.core.AppenderBase;
 
 /**
  * A logback appender that emits details to {@code raygun.io}.
@@ -100,12 +103,18 @@ public class RaygunAppender extends AppenderBase<ILoggingEvent>
       msg.getDetails().getClient().setClientUrlString(URL);
       msg.getDetails().setError(buildRaygunMessage(e));
       msg.getDetails().setTags(tags);
-
-      msg.getDetails().setUserCustomData(ImmutableMap.of(
-          "thread", e.getThreadName(),
-          "logger", e.getLoggerName(),
-          "applicationId", System.getProperty(PROPERTY_APPLICATION_ID, "unnamed"),
-          "datetime", new Date(e.getTimeStamp())));
+      
+      Map<String, String> customData = Maps.newHashMap();
+      customData.put("thread", e.getThreadName());
+      customData.put("logger", e.getLoggerName());
+      customData.put("applicationId", System.getProperty(PROPERTY_APPLICATION_ID, "unnamed"));
+      customData.put("datetime", new Date(e.getTimeStamp()).toString());
+      Map<String, String> mdcContext = e.getMDCPropertyMap();
+      for(String mdcKey : mdcContext.keySet()) {
+          customData.put("mdc:" + mdcKey, mdcContext.get(mdcKey));
+      }
+      
+      msg.getDetails().setUserCustomData(ImmutableMap.copyOf(customData));
 
       ray.Post(msg);
     }

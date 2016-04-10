@@ -9,7 +9,7 @@ A logback appender that emits details to [raygun.io](http://raygun.io/).  It req
 <dependency>
   <groupId>com.fatboyindustrial.logback-raygun</groupId>
   <artifactId>logback-raygun</artifactId>
-  <version>1.3.0</version>
+  <version>1.4.0</version>
 </dependency>
 ````
 
@@ -125,3 +125,8 @@ LOG.warn("I hope it will be friends with me.");
 I hope it will be friends with me.
     com.fatboyindustrial.raygun.OtherClass.three in OtherClass.java:53
 ````
+
+## MDC context
+
+Custom data recorded in the SLF4J [Mapped Diagnostic Context (MDC)](http://logback.qos.ch/manual/mdc.html)
+is transmitted to Raygun as tags. The Raygun tag name is the MDC key name with `mdc:` prefixed.

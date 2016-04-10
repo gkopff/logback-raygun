@@ -1,5 +1,10 @@
 # Change Log
 
+## [1.4.0] - 2016-04-11
+
+### Added
+ - MDC context data is sent as Raygun tags (contributed by [Andrew Matheny](https://github.com/ajmath))
+
 ## [1.3.0] - 2015-08-31
 
 ### Changed

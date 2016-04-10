@@ -129,4 +129,4 @@ I hope it will be friends with me.
 ## MDC context
 
 Custom data recorded in the SLF4J [Mapped Diagnostic Context (MDC)](http://logback.qos.ch/manual/mdc.html)
-is transmitted to Raygun as tags. The Raygun tag name is the MDC key name with `mdc:` prefixed.
+is transmitted to Raygun as custom data. The Raygun tag name is the MDC key name with `mdc:` prefixed.
